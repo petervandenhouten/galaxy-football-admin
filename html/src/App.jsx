@@ -6,13 +6,13 @@ import UsersPage from './UsersPage';
 import JobsPage from './JobsPage';
 
 const BASE = '/galaxy-football-admin';
-function getPageComponent(route) {
-  switch (route) {
-    case `${BASE}/logs`:
+function getPageComponent(hash) {
+  switch (hash) {
+    case '#/logs':
       return <LogsPage />;
-    case `${BASE}/users`:
+    case '#/users':
       return <UsersPage />;
-    case `${BASE}/jobs`:
+    case '#/jobs':
       return <JobsPage />;
     default:
       return <DashboardHome />;
@@ -20,29 +20,28 @@ function getPageComponent(route) {
 }
 
 function App() {
-  const [route, setRoute] = useState(window.location.pathname);
+  const [hash, setHash] = useState(window.location.hash || '#/');
 
   useEffect(() => {
-    const onPopState = () => setRoute(window.location.pathname);
-    window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+    const onHashChange = () => setHash(window.location.hash || '#/');
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   const navigate = (path) => {
-    window.history.pushState({}, '', `${BASE}${path}`);
-    setRoute(`${BASE}${path}`);
+    window.location.hash = path;
   };
 
   return (
     <DashboardLayout>
       {/* Simple navigation context for demo purposes */}
       <nav style={{ marginBottom: 24 }}>
-        <button onClick={() => navigate('/')}>Dashboard</button>
+        <button onClick={() => navigate('/')} >Dashboard</button>
         <button onClick={() => navigate('/logs')}>Logs</button>
         <button onClick={() => navigate('/users')}>Users</button>
         <button onClick={() => navigate('/jobs')}>Jobs</button>
       </nav>
-      {getPageComponent(route)}
+      {getPageComponent(hash)}
     </DashboardLayout>
   );
 }
