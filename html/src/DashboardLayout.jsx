@@ -7,10 +7,10 @@ export default function DashboardLayout({ children }) {
         <h2>Galaxy Football Admin</h2>
         <nav>
           <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li><a href="/" style={{ color: '#fff' }}>Dashboard</a></li>
-            <li><a href="/logs" style={{ color: '#fff' }}>Backend Logs</a></li>
-            <li><a href="/users" style={{ color: '#fff' }}>User Data</a></li>
-            <li><a href="/jobs" style={{ color: '#fff' }}>Jobs</a></li>
+            <li><a href="/galaxy-football-admin/" style={{ color: '#fff' }}>Dashboard</a></li>
+            <li><a href="/galaxy-football-admin/logs" style={{ color: '#fff' }}>Backend Logs</a></li>
+            <li><a href="/galaxy-football-admin/users" style={{ color: '#fff' }}>User Data</a></li>
+            <li><a href="/galaxy-football-admin/jobs" style={{ color: '#fff' }}>Jobs</a></li>
           </ul>
         </nav>
       </aside>

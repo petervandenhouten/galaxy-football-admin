@@ -5,13 +5,14 @@ import LogsPage from './LogsPage';
 import UsersPage from './UsersPage';
 import JobsPage from './JobsPage';
 
+const BASE = '/galaxy-football-admin';
 function getPageComponent(route) {
   switch (route) {
-    case '/logs':
+    case `${BASE}/logs`:
       return <LogsPage />;
-    case '/users':
+    case `${BASE}/users`:
       return <UsersPage />;
-    case '/jobs':
+    case `${BASE}/jobs`:
       return <JobsPage />;
     default:
       return <DashboardHome />;
@@ -28,8 +29,8 @@ function App() {
   }, []);
 
   const navigate = (path) => {
-    window.history.pushState({}, '', path);
-    setRoute(path);
+    window.history.pushState({}, '', `${BASE}${path}`);
+    setRoute(`${BASE}${path}`);
   };
 
   return (
