@@ -25,6 +25,8 @@ export default function DashboardLayout({ children }) {
   const [backendVersion, setBackendVersion] = useState("");
   const [backendTime, setBackendTime] = useState("");
   const [backendError, setBackendError] = useState("");
+  const [backendBranch, setBackendBranch] = useState("");
+  const [backendDescription, setBackendDescription] = useState("");
 
   // Store backendUrl in localStorage
   useEffect(() => {
@@ -36,6 +38,8 @@ export default function DashboardLayout({ children }) {
     if (!backendUrl) return;
     setBackendVersion("");
     setBackendTime("");
+    setBackendBranch("");
+    setBackendDescription("");
     setBackendError("");
     // Add cache-busting query param
     const versionUrl = backendUrl.replace(/\/$/, "") + "/version?_=" + Date.now();
@@ -47,7 +51,9 @@ export default function DashboardLayout({ children }) {
           const data = await res.clone().json();
           if (typeof data === "object" && data !== null) {
             setBackendVersion(data.version || "");
-            setBackendTime(data.time || "");
+            setBackendTime(data.buildtime || data.time || "");
+            setBackendBranch(data.branchname || "");
+            setBackendDescription(data.description || "");
             setBackendError("");
             return;
           }
@@ -57,11 +63,15 @@ export default function DashboardLayout({ children }) {
         const text = await res.text();
         setBackendVersion(text);
         setBackendTime("");
+        setBackendBranch("");
+        setBackendDescription("");
         setBackendError("");
       })
       .catch(() => {
         setBackendVersion("");
         setBackendTime("");
+        setBackendBranch("");
+        setBackendDescription("");
         setBackendError("Could not connect to backend");
       });
   }, [backendUrl]);
@@ -89,7 +99,13 @@ export default function DashboardLayout({ children }) {
               <div style={{ color: '#0f0' }}>Version: {backendVersion}</div>
             )}
             {backendTime && (
-              <div style={{ color: '#0cf' }}>Time: {backendTime}</div>
+              <div style={{ color: '#0cf' }}>Build Time: {backendTime}</div>
+            )}
+            {backendBranch && (
+              <div style={{ color: '#0cf' }}>Branch: {backendBranch}</div>
+            )}
+            {backendDescription && (
+              <div style={{ color: '#0cf' }}>Desc: {backendDescription}</div>
             )}
             {backendError && (
               <span style={{ color: '#f66' }}>{backendError}</span>
