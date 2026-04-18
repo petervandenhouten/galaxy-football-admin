@@ -20,9 +20,11 @@ const logHighlightRules = {
     { token: 'log-warn', regex: /warn|deprecated|unstable|slow|retry/i },
     { token: 'log-info', regex: /info|started|listening|success|ready|connected|completed/i },
     { token: 'log-debug', regex: /debug|trace|verbose|inspect/i },
+    { token: 'log-http-get', regex: /HTTP GET/i },
     { token: 'log-date', regex: /\b\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?\b/i },
     { token: 'log-number', regex: /\b\d+\b/i },
-    { token: 'log-default', regex: /.+/i },
+    // Match any of the above or any other text, non-greedy, so multiple tokens per line
+    { token: 'log-default', regex: /[^\[]+?/i },
   ],
 };
 
@@ -352,6 +354,7 @@ function LogsPage() {
                         .ace_log-number { color: #b0bec5 !important; }
                         .ace_log-tag-inf { color: #00bcd4 !important; font-weight: bold; }
                         .ace_log-tag-err { color: #ff1744 !important; font-weight: bold; }
+                        .ace-tomorrow-night .ace_log-http-get { color: #ffd600 !important; font-weight: bold; }
                         .ace_log-default { color: #fff !important; }
                       `;
                       document.head.appendChild(style);
