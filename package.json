@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "ace-builds": "^1.43.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "pg": "^8.20.0",
     "react-ace": "^14.0.1"
   },
   "devDependencies": {
