@@ -164,7 +164,7 @@ function App() {
           <Routes>
             <Route path="/" element={<DashboardHome user={user} token={token} backend={backend} />} />
             <Route path="/logs" element={user ? <LogsPage token={token} backend={backend} /> : <Navigate to="/" />} />
-            <Route path="/tables" element={user ? <TablesPage token={token} backend={backend} /> : <Navigate to="/" />} />
+            <Route path="/tables" element={user ? <TablesPage token={token} backend={backend} user={user} /> : <Navigate to="/" />} />
             <Route path="/users" element={user ? <UsersPage token={token} backend={backend} /> : <Navigate to="/" />} />
             <Route path="/jobs" element={user ? <JobsPage token={token} backend={backend} /> : <Navigate to="/" />} />
             <Route path="/track" element={user ? <TrackCallPage token={token} backend={backend} /> : <Navigate to="/" />} />
