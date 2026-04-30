@@ -146,6 +146,9 @@ function App() {
                 <Button type="submit" variant="contained" color="primary">Connect</Button>
                 <Typography color={status === 'Connected' ? 'success.main' : 'error.main'}>{status}</Typography>
               </Box>
+              <Typography variant="caption" sx={{ mt: 2, display: 'block', textAlign: 'right', color: '#888' }}>
+                Version: {import.meta.env.VITE_ADMIN_VERSION}
+              </Typography>
             </Paper>
           ) : (
             <Paper elevation={2} sx={{ p: 2, mb: 2 }}>
