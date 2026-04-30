@@ -1,9 +1,7 @@
 import React from 'react';
 
 import { useState } from 'react';
-import { getBackendUrl } from './backend';
-
-export default function DashboardHome() {
+export default function DashboardHome({ backend, token }) {
   const [lockResult, setLockResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -12,8 +10,10 @@ export default function DashboardHome() {
     setLoading(true);
     setError(null);
     try {
-      const url = getBackendUrl().replace(/\/$/, '') + '/api/database-locked';
-      const res = await fetch(url);
+      const url = (backend || '').replace(/\/$/, '') + '/api/database-locked';
+      const res = await fetch(url, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       if (typeof data !== 'object' || data === null || (!('locked' in data) && !('isLocked' in data))) {

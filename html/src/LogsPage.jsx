@@ -1,104 +1,25 @@
 
 
 import React, { useEffect, useState, useRef } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { getBackendUrl } from './backend';
 import AceEditorModule from 'react-ace';
 const AceEditor = AceEditorModule.default || AceEditorModule;
+
 import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/mode-logiql'; // fallback if available
 import 'ace-builds/src-noconflict/theme-tomorrow_night';
 import 'ace-builds/src-noconflict/ext-searchbox';
-
-// Custom log mode for basic highlighting
-const logHighlightRules = {
-  start: [
-    { token: 'log-tag-inf', regex: /\[INF\]/i },
-    { token: 'log-tag-err', regex: /\[ERR\]/i },
-    { token: 'log-fatal', regex: /fatal|panic|abort|unrecoverable/i },
-    { token: 'log-fail', regex: /fail|failed|failure|denied|rejected|refused|unavailable/i },
-    { token: 'log-error', regex: /error|exception|critical|stacktrace|crash|corrupt|invalid|timeout|unhandled/i },
-    { token: 'log-warn', regex: /warn|deprecated|unstable|slow|retry/i },
-    { token: 'log-info', regex: /info|started|listening|success|ready|connected|completed/i },
-    { token: 'log-debug', regex: /debug|trace|verbose|inspect/i },
-    { token: 'log-http-get', regex: /HTTP GET/i },
-    { token: 'log-date', regex: /\b\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?\b/i },
-    { token: 'log-number', regex: /\b\d+\b/i },
-    // Match any of the above or any other text, non-greedy, so multiple tokens per line
-    { token: 'log-default', regex: /[^\[]+?/i },
-  ],
-};
-
-function registerCustomLogMode() {
-  if (typeof window !== 'undefined' && window.ace && window.ace.define) {
-    window.ace.define('ace/mode/log_highlight', [
-      'require', 'exports', 'module', 'ace/lib/oop', 'ace/mode/text', 'ace/mode/text_highlight_rules'
-    ], function(require, exports, module) {
-      var oop = require('ace/lib/oop');
-      var TextMode = require('ace/mode/text').Mode;
-      var TextHighlightRules = require('ace/mode/text_highlight_rules').TextHighlightRules;
-      var LogHighlightRules = function() {
-        this.$rules = logHighlightRules;
-      };
-      oop.inherits(LogHighlightRules, TextHighlightRules);
-      var Mode = function() {
-        this.HighlightRules = LogHighlightRules;
-      };
-      oop.inherits(Mode, TextMode);
-      (function() {
-        this.$id = 'ace/mode/log_highlight';
-      }).call(Mode.prototype);
-      exports.Mode = Mode;
-    });
-  }
-}
-
-// Register the custom mode globally before render
-if (typeof window !== 'undefined') {
-  function tryRegisterLogMode() {
-    if (window.ace && window.ace.define && !window.ace.definedLogHighlight) {
-      registerCustomLogMode();
-      window.ace.definedLogHighlight = true;
-    }
-  }
-  // Try immediately, and again after a short delay in case ace is loaded late
-  tryRegisterLogMode();
-  setTimeout(tryRegisterLogMode, 500);
-}
-import 'ace-builds/src-noconflict/theme-tomorrow_night';
-import 'ace-builds/src-noconflict/ext-searchbox';
-
-// Simple error boundary component
-class ErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-  componentDidCatch(error, errorInfo) {
-    // You can log error info here if needed
-    // console.error(error, errorInfo);
-  }
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ color: 'red', padding: 16, background: '#330', borderRadius: 4 }}>
-          <h2>Something went wrong in the log viewer.</h2>
-          <pre>{this.state.error && this.state.error.toString()}</pre>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
+import './mode-log_highlight';
 
 
-function LogsPage() {
+
+
+function LogsPage({ token, backend }) {
   const [wrapLines, setWrapLines] = useState(false);
   const [lineScroll, setLineScroll] = useState(true);
   const [logFiles, setLogFiles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileContent, setFileContent] = useState(null);
@@ -108,62 +29,13 @@ function LogsPage() {
   const [filter, setFilter] = useState("");
   const aceRef = useRef(null);
 
-
-
-    // Fetch log file list
-    useEffect(() => {
-      setLoading(true);
-      setError(null);
-      fetch(getBackendUrl().replace(/\/$/, '') + '/api/logs')
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch log file list');
-          return res.json();
-        })
-        .then(data => {
-          setLogFiles(Array.isArray(data) ? data : []);
-        })
-        .catch(err => {
-          setError(err.message);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }, []);
-
-    // Fetch selected log file content
-    useEffect(() => {
-      if (!selectedFile) {
-        setFileContent("");
-        setFileError(null);
-        return;
-      }
-      setFileLoading(true);
-      setFileError(null);
-      fetch(getBackendUrl().replace(/\/$/, '') + '/api/logs/' + encodeURIComponent(selectedFile))
-        .then(res => {
-          if (!res.ok) throw new Error('Failed to fetch log file');
-          return res.text();
-        })
-        .then(text => {
-          setFileContent(typeof text === 'string' ? text : (text ? String(text) : ""));
-          setFileError(null);
-        })
-        .catch(err => {
-          setFileContent("");
-          setFileError(err.message);
-        })
-        .finally(() => {
-          setFileLoading(false);
-        });
-    }, [selectedFile]);
-
-
-
-  // Fetch log file list
-  useEffect(() => {
+  // Manual fetch for log file list
+  const fetchLogFiles = () => {
     setLoading(true);
     setError(null);
-    fetch(getBackendUrl().replace(/\/$/, '') + '/api/logs')
+    fetch((backend || '').replace(/\/$/, '') + '/api/logs', {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    })
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch log file list');
         return res.json();
@@ -177,70 +49,79 @@ function LogsPage() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  };
 
   // Fetch selected log file content
   useEffect(() => {
     if (!selectedFile) {
-      setFileContent(null);
+      setFileContent("");
       setFileError(null);
       return;
     }
     setFileLoading(true);
     setFileError(null);
-    fetch(getBackendUrl().replace(/\/$/, '') + '/api/logs/' + encodeURIComponent(selectedFile))
+    fetch((backend || '').replace(/\/$/, '') + '/api/logs/' + encodeURIComponent(selectedFile), {
+      headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+    })
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch log file');
         return res.text();
       })
       .then(text => {
-        setFileContent(text);
+        setFileContent(typeof text === 'string' ? text : (text ? String(text) : ""));
         setFileError(null);
       })
       .catch(err => {
-        setFileContent(null);
+        setFileContent("");
         setFileError(err.message);
       })
       .finally(() => {
         setFileLoading(false);
       });
-  }, [selectedFile]);
+  }, [selectedFile, backend, token]);
+
+
+
+
 
   return (
     <ErrorBoundary>
       <div>
         <h1>Backend Logs</h1>
         <p>View and download backend logs (stored in Cloudflare R2).</p>
-        {loading && <div>Loading log file list...</div>}
-        {error && <div style={{color: 'red'}}>Error: {error}</div>}
-        {!loading && !error && (
-          <div style={{ marginBottom: 24 }}>
-            <h3>Available Log Files</h3>
-            {logFiles.length === 0 ? (
-              <div>No log files found.</div>
-            ) : (
-              <ul style={{ paddingLeft: 0, listStyle: 'none' }}>
+        <div style={{ marginBottom: 24 }}>
+          <button onClick={fetchLogFiles} style={{ marginBottom: 16, padding: '8px 20px', borderRadius: 4, border: '1px solid #888', background: '#1976d2', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
+            Retrieve Log File List
+          </button>
+          {loading && <div>Loading log file list...</div>}
+          {error && <div style={{color: 'red'}}>Error: {error}</div>}
+          {logFiles.length > 0 && !loading && !error && (
+            <>
+              <h3>Available Log Files</h3>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
                 {logFiles.map((file, idx) => (
-                  <li key={file} style={{ marginBottom: 8 }}>
-                    <button
-                      style={{
-                        background: selectedFile === file ? '#444' : '#eee',
-                        color: selectedFile === file ? '#fff' : '#222',
-                        border: '1px solid #ccc',
-                        borderRadius: 4,
-                        padding: '4px 12px',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => setSelectedFile(file)}
-                    >
-                      {file}
-                    </button>
-                  </li>
+                  <button
+                    key={file}
+                    style={{
+                      background: selectedFile === file ? '#444' : '#eee',
+                      color: selectedFile === file ? '#fff' : '#222',
+                      border: '1px solid #ccc',
+                      borderRadius: 4,
+                      padding: '4px 12px',
+                      cursor: 'pointer',
+                      marginBottom: 8,
+                      whiteSpace: 'nowrap',
+                    }}
+                    onClick={() => setSelectedFile(file)}
+                  >
+                    {file}
+                  </button>
                 ))}
-              </ul>
-            )}
-          </div>
-        )}
+              </div>
+            </>
+          )}
+          {logFiles.length === 0 && !loading && !error && <div>No log files found.</div>}
+        </div>
         {selectedFile && (
           <div>
             <h3>Log File: {selectedFile}</h3>

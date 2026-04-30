@@ -14,4 +14,7 @@ export default defineConfig({
   define: {
     'import.meta.env.VITE_ADMIN_VERSION': JSON.stringify(adminVersion),
   },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
 })
