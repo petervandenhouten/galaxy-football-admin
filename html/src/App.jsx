@@ -45,6 +45,7 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [version, setVersion] = useState('');
+  const [versionInfo, setVersionInfo] = useState(null);
   const [token, setToken] = useState('');
 
   // Login using backend /auth/login endpoint
@@ -80,8 +81,10 @@ function App() {
       if (versionRes.ok) {
         const versionData = await versionRes.json();
         setVersion(versionData.version || '');
+        setVersionInfo(versionData);
       } else {
         setVersion('');
+        setVersionInfo(null);
       }
     } catch (err) {
       setStatus('Error connecting');
@@ -107,7 +110,7 @@ function App() {
             </Typography>
             <Button color="inherit" component={Link} to="/">Home</Button>
             <Button color="inherit" component={Link} to="/logs">Logs</Button>
-            <Button color="inherit" component={Link} to="/tables">Tables</Button>
+            <Button color="inherit" component={Link} to="/tables">Database</Button>
             <Button color="inherit" component={Link} to="/users">Users</Button>
             <Button color="inherit" component={Link} to="/jobs">Jobs</Button>
             <Button color="inherit" component={Link} to="/track">Track Call</Button>
@@ -156,7 +159,6 @@ function App() {
                 <Typography>Status: {status}</Typography>
                 <Typography>User: {user.name} ({user.role})</Typography>
                 <Typography>Backend: {BACKEND_OPTIONS.find(opt => opt.url === backend)?.label || backend}</Typography>
-                <Typography>Version: {version}</Typography>
                 <Button variant="outlined" color="secondary" onClick={handleLogout}>Logout</Button>
               </Stack>
             </Paper>
@@ -165,11 +167,11 @@ function App() {
 
         <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Routes>
-            <Route path="/" element={<DashboardHome user={user} token={token} backend={backend} />} />
+            <Route path="/" element={<DashboardHome user={user} token={token} backend={backend} versionInfo={versionInfo} />} />
             <Route path="/logs" element={user ? <LogsPage token={token} backend={backend} /> : <Navigate to="/" />} />
             <Route path="/tables" element={user ? <TablesPage token={token} backend={backend} user={user} /> : <Navigate to="/" />} />
             <Route path="/users" element={user ? <UsersPage token={token} backend={backend} /> : <Navigate to="/" />} />
-            <Route path="/jobs" element={user ? <JobsPage token={token} backend={backend} /> : <Navigate to="/" />} />
+            <Route path="/jobs" element={user ? <JobsPage token={token} backend={backend} user={user} /> : <Navigate to="/" />} />
             <Route path="/track" element={user ? <TrackCallPage token={token} backend={backend} /> : <Navigate to="/" />} />
           </Routes>
         </Container>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useState } from 'react';
-export default function DashboardHome({ backend, token }) {
+export default function DashboardHome({ backend, token, versionInfo }) {
   const [lockResult, setLockResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -33,39 +33,17 @@ export default function DashboardHome({ backend, token }) {
     <div>
       <h1>Welcome, Admin!</h1>
       <p>This is the Galaxy Football admin dashboard. Use the navigation to access logs, user data, and job scheduling.</p>
-      <button onClick={fetchDatabaseLocked} disabled={loading} style={{marginTop: 16}}>
-        {loading ? 'Checking...' : 'Check Database Locked'}
-      </button>
-      {error && <div style={{color: 'red', marginTop: 16}}>Error: {error}</div>}
-      {lockResult && (
-        <div style={{marginTop: 16}}>
-          <h3>Database Locked Status</h3>
-          <div><b>Locked:</b> {lockResult.locked !== undefined ? (lockResult.locked ? 'Yes' : 'No') : (lockResult.isLocked ? 'Yes' : 'No')}</div>
-          {lockResult.isBatchProcessing !== undefined && (
-            <div><b>Batch Processing:</b> {lockResult.isBatchProcessing ? 'Yes' : 'No'}</div>
-          )}
-          {lockResult.locks && Array.isArray(lockResult.locks) && lockResult.locks.length > 0 && (
-            <div style={{overflowX: 'auto', marginTop: 8}}>
-              <table border="1" cellPadding="4" style={{maxWidth: '100%'}}>
-                <thead>
-                  <tr>
-                    {Object.keys(lockResult.locks[0] || {}).map((col) => (
-                      <th key={col}>{col}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {lockResult.locks.map((row, i) => (
-                    <tr key={i}>
-                      {Object.values(row).map((val, j) => (
-                        <td key={j}>{String(val)}</td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      {versionInfo && (
+        <div style={{marginTop: 32, maxWidth: 480, background: '#f5f5f5', border: '1px solid #ccc', borderRadius: 8, padding: 24, marginLeft: 'auto', marginRight: 'auto'}}>
+          <h2 style={{textAlign: 'center'}}>Backend Version Information</h2>
+          <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
+            <li><b>Version:</b> {versionInfo.version}</li>
+            <li><b>Build Time:</b> {versionInfo.buildtime}</li>
+            <li><b>Branch:</b> {versionInfo.branchname}</li>
+            <li><b>Description:</b> {versionInfo.description}</li>
+            <li><b>Game Version:</b> {versionInfo.gameversion}</li>
+            <li><b>Database Version:</b> {versionInfo.databaseversion}</li>
+          </ul>
         </div>
       )}
     </div>

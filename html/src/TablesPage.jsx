@@ -2,6 +2,32 @@ import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 
 export default function TablesPage({ backend, token, user }) {
+  // --- Database Locked State ---
+  const [lockResult, setLockResult] = useState(null);
+  const [lockLoading, setLockLoading] = useState(false);
+  const [lockError, setLockError] = useState(null);
+
+  const fetchDatabaseLocked = async () => {
+    setLockLoading(true);
+    setLockError(null);
+    try {
+      const url = (backend || '').replace(/\/$/, '') + '/api/database-locked';
+      const res = await fetch(url, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (!res.ok) throw new Error('Failed to fetch');
+      const data = await res.json();
+      if (typeof data !== 'object' || data === null || (!('locked' in data) && !('isLocked' in data))) {
+        throw new Error('Unexpected response format');
+      }
+      setLockResult(data);
+    } catch (err) {
+      setLockError(err.message);
+      setLockResult(null);
+    } finally {
+      setLockLoading(false);
+    }
+  };
   // Debug info for troubleshooting
   if (!user || user.role !== 'admin') {
     return (
@@ -97,11 +123,11 @@ export default function TablesPage({ backend, token, user }) {
 
   return (
     <div>
-      <h1>Database Tables</h1>
-      <p>View all database tables and their contents.</p>
-      <div style={{ margin: '16px 0', padding: 16, background: '#f5f5f5', borderRadius: 8, border: '1px solid #ccc', maxWidth: 600 }}>
+      <h1>Database</h1>
+      <p>View all database tables, their contents, and check database lock status.</p>
+      <div style={{ margin: '16px auto', padding: 16, background: '#f5f5f5', borderRadius: 8, border: '1px solid #ccc', maxWidth: 600, textAlign: 'center' }}>
         <b>Database Connection Summary ({dbParams.env}):</b>
-        <ul style={{ margin: 0, paddingLeft: 20 }}>
+        <ul style={{ margin: 0, paddingLeft: 0, display: 'inline-block', textAlign: 'left' }}>
           <li><b>Name:</b> {dbParams.name}</li>
           <li><b>Host:</b> {dbParams.url}</li>
         </ul>
@@ -109,6 +135,41 @@ export default function TablesPage({ backend, token, user }) {
       <button onClick={fetchTables} disabled={loading} style={{ margin: '16px 0', padding: '8px 20px', borderRadius: 4, border: '1px solid #888', background: '#1976d2', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
         {loading ? 'Fetching tables...' : 'Retrieve Table List'}
       </button>
+      <button onClick={fetchDatabaseLocked} disabled={lockLoading} style={{ margin: '16px 0 0 16px', padding: '8px 20px', borderRadius: 4, border: '1px solid #888', background: '#d2691e', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>
+        {lockLoading ? 'Checking...' : 'Check Database Locked'}
+      </button>
+      {lockError && <div style={{ color: 'red', marginTop: 16 }}>Error: {lockError}</div>}
+      {lockResult && (
+        <div style={{ marginTop: 16 }}>
+          <h3>Database Locked Status</h3>
+          <div><b>Locked:</b> {lockResult.locked !== undefined ? (lockResult.locked ? 'Yes' : 'No') : (lockResult.isLocked ? 'Yes' : 'No')}</div>
+          {lockResult.isBatchProcessing !== undefined && (
+            <div><b>Batch Processing:</b> {lockResult.isBatchProcessing ? 'Yes' : 'No'}</div>
+          )}
+          {lockResult.locks && Array.isArray(lockResult.locks) && lockResult.locks.length > 0 && (
+            <div style={{ overflowX: 'auto', marginTop: 8 }}>
+              <table border="1" cellPadding="4" style={{ maxWidth: '100%' }}>
+                <thead>
+                  <tr>
+                    {Object.keys(lockResult.locks[0] || {}).map((col) => (
+                      <th key={col}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {lockResult.locks.map((row, i) => (
+                    <tr key={i}>
+                      {Object.values(row).map((val, j) => (
+                        <td key={j}>{String(val)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
       {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
       {tables.length > 0 && (
         <div style={{ marginTop: 16 }}>

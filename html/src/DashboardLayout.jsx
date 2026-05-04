@@ -27,6 +27,8 @@ export default function DashboardLayout({ children }) {
   const [backendError, setBackendError] = useState("");
   const [backendBranch, setBackendBranch] = useState("");
   const [backendDescription, setBackendDescription] = useState("");
+  const [backendGameVersion, setBackendGameVersion] = useState("");
+  const [backendDatabaseVersion, setBackendDatabaseVersion] = useState("");
 
   // Store backendUrl in localStorage
   useEffect(() => {
@@ -40,6 +42,8 @@ export default function DashboardLayout({ children }) {
     setBackendTime("");
     setBackendBranch("");
     setBackendDescription("");
+    setBackendGameVersion("");
+    setBackendDatabaseVersion("");
     setBackendError("");
     // Add cache-busting query param
     const versionUrl = backendUrl.replace(/\/$/, "") + "/version?_=" + Date.now();
@@ -54,6 +58,8 @@ export default function DashboardLayout({ children }) {
             setBackendTime(data.buildtime || data.time || "");
             setBackendBranch(data.branchname || "");
             setBackendDescription(data.description || "");
+            setBackendGameVersion(data.gameversion || "");
+            setBackendDatabaseVersion(data.databaseversion || "");
             setBackendError("");
             return;
           }
@@ -65,6 +71,8 @@ export default function DashboardLayout({ children }) {
         setBackendTime("");
         setBackendBranch("");
         setBackendDescription("");
+        setBackendGameVersion("");
+        setBackendDatabaseVersion("");
         setBackendError("");
       })
       .catch(() => {
@@ -72,6 +80,8 @@ export default function DashboardLayout({ children }) {
         setBackendTime("");
         setBackendBranch("");
         setBackendDescription("");
+        setBackendGameVersion("");
+        setBackendDatabaseVersion("");
         setBackendError("Could not connect to backend");
       });
   }, [backendUrl]);
@@ -98,6 +108,12 @@ export default function DashboardLayout({ children }) {
             {backendVersion && (
               <div style={{ color: '#0f0' }}>Version: {backendVersion}</div>
             )}
+            {backendGameVersion && (
+              <div style={{ color: '#0cf' }}>Game Version: {backendGameVersion}</div>
+            )}
+            {backendDatabaseVersion && (
+              <div style={{ color: '#0cf' }}>Database Version: {backendDatabaseVersion}</div>
+            )}
             {backendTime && (
               <div style={{ color: '#0cf' }}>Build Time: {backendTime}</div>
             )}
@@ -116,6 +132,7 @@ export default function DashboardLayout({ children }) {
           <ul style={{ listStyle: 'none', padding: 0 }}>
             <li><a href={`${BASE}/#/`} style={{ color: '#fff' }}>Dashboard</a></li>
             <li><a href={`${BASE}/#/logs`} style={{ color: '#fff' }}>Backend Logs</a></li>
+            <li><a href={`${BASE}/#/tables`} style={{ color: '#fff' }}>Database</a></li>
             <li><a href={`${BASE}/#/users`} style={{ color: '#fff' }}>User Data</a></li>
             <li><a href={`${BASE}/#/jobs`} style={{ color: '#fff' }}>Jobs</a></li>
           </ul>
