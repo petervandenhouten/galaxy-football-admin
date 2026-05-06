@@ -37,12 +37,14 @@ export default function DashboardHome({ backend, token, versionInfo }) {
         <div style={{marginTop: 32, maxWidth: 480, background: '#f5f5f5', border: '1px solid #ccc', borderRadius: 8, padding: 24, marginLeft: 'auto', marginRight: 'auto'}}>
           <h2 style={{textAlign: 'center'}}>Backend Version Information</h2>
           <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
-            <li><b>Version:</b> {versionInfo.version}</li>
+            <li><b>Version:</b> {versionInfo.assembly_version}</li>
+            <li><b>Game Version:</b> {versionInfo.game_version}</li>
+            <li><b>Database Version:</b> {versionInfo.database_version}</li>
+            <li><b>Branch:</b> {versionInfo.git_branchname}</li>
+            <li><b>Commit:</b> {versionInfo.git_commit ? versionInfo.git_commit.slice(0, 8) : ''}</li>
+            <li><b>Environment:</b> {versionInfo.asp_environment}</li>
             <li><b>Build Time:</b> {versionInfo.buildtime}</li>
-            <li><b>Branch:</b> {versionInfo.branchname}</li>
             <li><b>Description:</b> {versionInfo.description}</li>
-            <li><b>Game Version:</b> {versionInfo.gameversion}</li>
-            <li><b>Database Version:</b> {versionInfo.databaseversion}</li>
           </ul>
         </div>
       )}

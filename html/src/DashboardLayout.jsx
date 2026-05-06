@@ -54,12 +54,12 @@ export default function DashboardLayout({ children }) {
         try {
           const data = await res.clone().json();
           if (typeof data === "object" && data !== null) {
-            setBackendVersion(data.version || "");
+            setBackendVersion(data.assembly_version || "");
             setBackendTime(data.buildtime || data.time || "");
-            setBackendBranch(data.branchname || "");
+            setBackendBranch(data.git_branchname || "");
             setBackendDescription(data.description || "");
-            setBackendGameVersion(data.gameversion || "");
-            setBackendDatabaseVersion(data.databaseversion || "");
+            setBackendGameVersion(data.game_version || "");
+            setBackendDatabaseVersion(data.database_version || "");
             setBackendError("");
             return;
           }

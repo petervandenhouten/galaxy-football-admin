@@ -80,7 +80,7 @@ function App() {
       });
       if (versionRes.ok) {
         const versionData = await versionRes.json();
-        setVersion(versionData.version || '');
+        setVersion(versionData.assembly_version || '');
         setVersionInfo(versionData);
       } else {
         setVersion('');
