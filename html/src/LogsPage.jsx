@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import ErrorBoundary from './ErrorBoundary';
-import { getBackendUrl } from './backend';
 import AceEditorModule from 'react-ace';
 const AceEditor = AceEditorModule.default || AceEditorModule;
 

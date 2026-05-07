@@ -22,6 +22,9 @@ npm install
 npm run dev
 ```
 
+For local backend development with `dotnet run` launch profiles, use `https://localhost:7268`.
+The admin's `Localhost` backend option is configured to target that HTTPS endpoint.
+
 Available scripts:
 
 - `npm run dev`: start the Vite dev server

@@ -11,11 +11,14 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
+
+const LOCAL_BACKEND_URL = "https://localhost:7268";
+
 // Backend options
 const BACKEND_OPTIONS = [
   { label: "Production", url: "https://galaxy-football-backend.onrender.com" },
   { label: "Development", url: "https://galaxy-football-backend-dev.onrender.com" },
-  { label: "Localhost", url: "http://localhost:8080" },
+  { label: "Localhost", url: LOCAL_BACKEND_URL },
 ];
 import DashboardHome from './DashboardHome';
 import LogsPage from './LogsPage';
